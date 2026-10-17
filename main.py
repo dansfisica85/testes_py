@@ -5,9 +5,9 @@ import math
 nome = "Davi"
 idade = 40.9
 professor = True
-a = 1
-b = -5
-c = 6 
+a = 5
+b = 6
+c = 7 
 delta = (b**2 - 4*a*c)
 
 if delta < 0:
