@@ -18,11 +18,13 @@ elif delta == 0:
     print(f"A  raiz da equação é: {x}")
 
 else:
-    x1 = -b + math.sqrt(delta) / (2*a)
+    x1 = (-b + math.sqrt(delta)) / (2*a)
+    x2 = (-b - math.sqrt(delta)) / (2*a)
     print(f"A raiz x1 é igual a: {x1}")
+    print(f"A raiz x2 é igual a: {x2}")
 
 #def equacao2grau2(a, b, c):
-    #x2 = -b - math.sqrt(delta) / (2*a)
+    #x2 = (-b - math.sqrt(delta)) / (2*a)
     #return x2
 
 
@@ -39,4 +41,5 @@ print(type(idade).__name__)
 # códigos booleanos existem somente em duas condições, 
 # "True" ou "False"
 print(type(professor).__name__)
+
 

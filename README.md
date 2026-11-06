@@ -1,5 +1,52 @@
 # Calculadora Desktop de Equações do 2º Grau
 
+## Como abrir — versão corrigida em 06/11/2026
+
+**No Windows:**
+
+1. Baixe [calculadora_bhaskara.zip](https://github.com/dansfisica85/testes_py/raw/refs/heads/main/calculadora_bhaskara.zip) e use **Extrair tudo**.
+2. Tenha **Python 3.10 ou superior**, com **Tcl/Tk** e **Add Python to PATH** habilitados no instalador.
+3. Dentro da pasta extraída, dê dois cliques em **iniciar_calculadora.bat**.
+4. Na primeira abertura, aguarde a criação de `.venv` e a instalação das bibliotecas (precisa de internet). Nas seguintes, o ambiente é reutilizado.
+
+O atalho reconhece `py -3` e `python`. Se houver erro, a mensagem permanece visível. Se você copiou uma `.venv` de outro computador ou ela estiver quebrada, renomeie essa pasta e abra o atalho novamente. A configuração do VS Code agora aponta para `.venv`, sem exigir Conda.
+
+**Linux/macOS ou execução manual:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python main.py
+```
+
+É necessária uma sessão gráfica e suporte Tkinter. Em Debian/Ubuntu, instale `python3-tk` e `python3-venv` caso faltem. No Windows, a ativação manual é `.venv\Scripts\activate.bat`. Abrir o código no GitHub não executa o aplicativo; `main.txt` é uma anotação didática, e o programa é `main.py`.
+
+### O que foi corrigido
+
+- Dependências diretas declaradas como `numpy>=1.23.5,<3` e `matplotlib>=3.7,<4`. O pip resolve as dependências transitivas compatíveis com cada Python, sem impor o antigo `contourpy==1.4.0`, que impedia a instalação em Python anterior a 3.12.
+- Inicialização Windows com preparação do ambiente e erros visíveis, em vez de abrir `pythonw.exe` e ocultar falhas.
+- Mensagens para bibliotecas ausentes e falta de ambiente gráfico.
+- Rejeição de NaN, infinito e valores que ultrapassam o limite numérico do cálculo/gráfico.
+- Correção dos parênteses da fórmula e inclusão da segunda raiz no exemplo `main.txt`.
+- Testes de regressão, verificação de abertura da janela no CI e ZIP atualizado com os arquivos corrigidos.
+
+### Verificar e gerar o pacote
+
+```bash
+python -m unittest discover -s tests -v
+python main.py --smoke-test
+python gerar_zip.py
+```
+
+`--smoke-test` abre a janela, calcula o exemplo, desenha o gráfico e fecha automaticamente. No Linux sem monitor, use `xvfb-run -a python main.py --smoke-test` após instalar Xvfb. O CI cobre Python 3.10, 3.12 e 3.14 no Linux e 3.14 no Windows; no Windows também executa o iniciador em um ambiente novo.
+
+O ZIP contém `main.py`, `requirements.txt`, `README.md` e `iniciar_calculadora.bat`. Ele contém código-fonte e requer Python instalado. O empacotador falha antes de substituir o ZIP se faltar algum arquivo obrigatório.
+
+## Documentação histórica detalhada
+
+**O guia acima descreve a versão atual.** A análise abaixo foi preservada como referência da revisão de 30/10/2026; suas listas de versões, iniciador, validações e verificações descrevem aquela revisão e foram substituídas pelas correções acima.
+
 Aplicação desktop em Python (**Tkinter + NumPy + Matplotlib**) para resolver equações da forma **ax² + bx + c = 0**, apresentar a resolução passo a passo e desenhar a parábola correspondente em uma interface com tema escuro.
 
 Este README reúne a documentação funcional, matemática, arquitetural e operacional do projeto, incluindo os diagramas de classes, componentes, bibliotecas, execução e distribuição. A explicação acompanha os arquivos efetivamente presentes no repositório.
@@ -1179,3 +1226,4 @@ A fonte principal das descrições da calculadora é o próprio [código da revi
 - [GitHub: criação de diagramas em Markdown](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams).
 
 Os blocos `mermaid` são parte do próprio arquivo. A visualização como diagrama depende de um renderizador com suporte a essa sintaxe; seu conteúdo textual permanece disponível no modo de código-fonte.
+

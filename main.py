@@ -1,9 +1,19 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
 import math
-import numpy as np
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import sys
+
+try:
+    import tkinter as tk
+    from tkinter import ttk, messagebox
+    import numpy as np
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+except ImportError as erro:
+    raise SystemExit(
+        f"Não foi possível carregar uma biblioteca: {erro}\n"
+        "No Windows, abra iniciar_calculadora.bat para preparar o ambiente.\n"
+        "Ou execute: python -m pip install -r requirements.txt\n"
+        "Se faltar tkinter, instale o suporte Tcl/Tk do seu Python."
+    ) from erro
 
 class BhaskaraApp:
     def __init__(self, root):
@@ -101,13 +111,23 @@ class BhaskaraApp:
             messagebox.showerror("Erro de Entrada", "Por favor, insira valores numéricos válidos para a, b e c.")
             return
 
+        if not all(math.isfinite(v) for v in (a, b, c)):
+            messagebox.showerror("Erro de Entrada", "Use números finitos; NaN e infinito não são aceitos.")
+            return
+
         if a == 0:
             messagebox.showwarning("Atenção", "O coeficiente 'a' não pode ser zero em uma equação do 2º grau.")
             return
 
-        delta = (b ** 2) - (4 * a * c)
-        xv = -b / (2 * a)
-        yv = -delta / (4 * a)
+        try:
+            delta = (b ** 2) - (4 * a * c)
+            xv = -b / (2 * a)
+            yv = -delta / (4 * a)
+            if not all(math.isfinite(v) for v in (delta, xv, yv, 4 * a)):
+                raise OverflowError
+        except (OverflowError, ZeroDivisionError):
+            messagebox.showerror("Limite numérico", "Os coeficientes excedem o limite numérico. Use valores de menor magnitude.")
+            return
         concavidade = "Para cima (Ponto de Mínimo)" if a > 0 else "Para baixo (Ponto de Máximo)"
 
         res = []
@@ -150,8 +170,12 @@ class BhaskaraApp:
         res.append(f"   Vértice V({xv:.2f}, {yv:.2f})")
         res.append(f"   Concavidade: {concavidade}")
 
+        try:
+            self.plotar_grafico(a, b, c, xv, yv, raizes_reais)
+        except (OverflowError, FloatingPointError, ValueError):
+            messagebox.showerror("Limite do gráfico", "Não foi possível desenhar esses valores. Use coeficientes de menor magnitude.")
+            return
         self.mostrar_texto("\n".join(res))
-        self.plotar_grafico(a, b, c, xv, yv, raizes_reais)
 
     def mostrar_texto(self, texto):
         self.result_text.config(state="normal")
@@ -160,15 +184,18 @@ class BhaskaraApp:
         self.result_text.config(state="disabled")
 
     def plotar_grafico(self, a, b, c, xv, yv, raizes):
-        self.ax.clear()
-        self.ax.set_facecolor("#181825")
-
         # Define o intervalo de X centralizado no vértice e englobando as raízes
         alcance = max(abs(r - xv) for r in raizes) * 1.8 if raizes else 5.0
         alcance = max(alcance, 4.0)
 
-        x = np.linspace(xv - alcance, xv + alcance, 400)
-        y = a * (x ** 2) + b * x + c
+        with np.errstate(over="raise", invalid="raise", divide="raise"):
+            x = np.linspace(xv - alcance, xv + alcance, 400)
+            y = a * (x ** 2) + b * x + c
+        if not np.isfinite(x).all() or not np.isfinite(y).all():
+            raise ValueError("O gráfico ultrapassa o limite numérico.")
+
+        self.ax.clear()
+        self.ax.set_facecolor("#181825")
 
         # Eixos X e Y
         self.ax.axhline(0, color="#585b70", linewidth=1.2, linestyle="--")
@@ -202,6 +229,23 @@ class BhaskaraApp:
         self.calcular()
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = BhaskaraApp(root)
-    root.mainloop()
+    try:
+        root = tk.Tk()
+    except tk.TclError as erro:
+        raise SystemExit(
+            f"Não foi possível abrir a janela: {erro}\n"
+            "Execute em uma sessão gráfica de Windows, macOS ou Linux com Tcl/Tk."
+        ) from erro
+    try:
+        app = BhaskaraApp(root)
+        if "--smoke-test" in sys.argv:
+            root.update()
+            print("Interface, cálculo inicial e gráfico: OK")
+        else:
+            root.mainloop()
+    finally:
+        try:
+            root.destroy()
+        except tk.TclError:
+            pass  # A janela já foi fechada pelo usuário.
+
