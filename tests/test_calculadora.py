@@ -25,8 +25,12 @@ class CalculadoraTests(unittest.TestCase):
         self.app.fig = Figure()
         self.app.ax = self.app.fig.add_subplot(111)
         self.app.canvas = FigureCanvasAgg(self.app.fig)
-        self.erro = self.enterContext(patch("main.messagebox.showerror"))
-        self.aviso = self.enterContext(patch("main.messagebox.showwarning"))
+        erro_patch = patch("main.messagebox.showerror")
+        self.erro = erro_patch.start()
+        self.addCleanup(erro_patch.stop)
+        aviso_patch = patch("main.messagebox.showwarning")
+        self.aviso = aviso_patch.start()
+        self.addCleanup(aviso_patch.stop)
 
     def calcular(self, a, b, c):
         for entrada, valor in zip(
