@@ -25,7 +25,7 @@ class BhaskaraApp:
         style.configure("TLabel", background="#1e1e2e", foreground="#cdd6f4", font=("Segoe UI", 11))
         style.configure("Card.TLabel", background="#252538", foreground="#cdd6f4", font=("Segoe UI", 11))
         style.configure("Title.TLabel", background="#1e1e2e", foreground="#89b4fa", font=("Segoe UI", 16, "bold"))
-        style.configure("Formula.TLabel", background="#252538", foreground="#77ff38", font=("Segoe UI", 13, "bold"))
+        style.configure("Formula.TLabel", background="#252538", foreground="#77ff38", font=("Segoe UI", 15, "bold"))
         style.configure("TButton", background="#89b4fa", foreground="#11111b", font=("Segoe UI", 11, "bold"), padding=8)
         style.map("TButton", background=[("active", "#b4befe")])
         style.configure("Clear.TButton", background="#45475a", foreground="#cdd6f4", font=("Segoe UI", 11), padding=8)
